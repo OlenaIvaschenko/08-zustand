@@ -1,40 +1,30 @@
+"use client"
+
 import css from "./NoteForm.module.css";
-import { Formik, Form, Field, type FormikHelpers, ErrorMessage } from "formik";
 import { useId } from "react";
-import * as Yup from "yup";
 import type { NewNoteData } from "../../types/note";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addNote } from "@/lib/api";
+import { useRouter } from "next/navigation";
+import { useNoteDraftStore } from '@/lib/store/noteStore';
 
-const NoteFormSchema = Yup.object().shape({
-  title: Yup.string()
-    .min(3, "Must be at least 3 characters")
-    .max(50, "Too long")
-    .required("Required field"),
-  content: Yup.string().max(500, "Too long"),
-  tag: Yup.string()
-    .oneOf(["Todo", "Work", "Personal", "Meeting", "Shopping"])
-    .required("Required field"),
-});
-
-interface NoteFormValues {
-  title: string;
-  content: string;
-  tag: "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
-}
-
-const initialValues: NoteFormValues = {
-  title: "",
-  content: "",
-  tag: "Todo",
-};
-
-interface NoteFormProps {
-  onClose: () => void;
-}
-
-export default function NoteForm({ onClose }: NoteFormProps) {
+export default function NoteForm() {
   const fieldId = useId();
+  const router = useRouter();
+
+  const { draft, setDraft, clearDraft } = useNoteDraftStore();
+
+  const handleChange = (
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+	 
+    setDraft({
+      ...draft,
+      [event.target.name]: event.target.value,
+    });
+  };
 
   const queryClient = useQueryClient();
 
@@ -44,55 +34,54 @@ export default function NoteForm({ onClose }: NoteFormProps) {
     },
 
     onSuccess: () => {
+      clearDraft();
       queryClient.invalidateQueries({ queryKey: ["notes"] });
-
-      onClose();
+router.push('/notes/filter/All')
+      
     },
   });
 
-  const handleSubmit = (
-    values: NoteFormValues,
-    actions: FormikHelpers<NoteFormValues>
-  ) => {
-    addNoteMutation.mutate(values);
-    actions.resetForm();
+  const handleCancel = () => router.push('/notes/filter/All');
+
+  const handleSubmit = (formData: FormData) => {
+    const values = Object.fromEntries(formData) as unknown as NewNoteData;
+    // console.log(values);
+    addNoteMutation.mutate(values)
   };
 
   return (
-    <Formik
-      initialValues={initialValues}
-      onSubmit={handleSubmit}
-      validationSchema={NoteFormSchema}
-    >
-      <Form className={css.form}>
+
+      <form action={handleSubmit} className={css.form}>
         <div className={css.formGroup}>
           <label htmlFor={`${fieldId}-title`}>Title</label>
-          <Field
+          <input
             id={`${fieldId}-title`}
             type="text"
             name="title"
             className={css.input}
+            defaultValue={draft?.title} onChange={handleChange}
           />
 
-          <ErrorMessage component="span" name="title" className={css.error} />
+        
         </div>
 
         <div className={css.formGroup}>
           <label htmlFor={`${fieldId}-content`}>Content</label>
-          <Field
-            as="textarea"
+          <textarea
+            
             id={`${fieldId}-content`}
             name="content"
             rows={8}
             className={css.textarea}
+            defaultValue={draft?.content} onChange={handleChange}
           />
-          <ErrorMessage component="span" name="content" className={css.error} />
+         
         </div>
 
         <div className={css.formGroup}>
           <label htmlFor={`${fieldId}-tag`}>Tag</label>
-          <Field
-            as="select"
+          <select
+            defaultValue={draft?.tag} onChange={handleChange}
             id={`${fieldId}-tag`}
             name="tag"
             className={css.select}
@@ -102,20 +91,19 @@ export default function NoteForm({ onClose }: NoteFormProps) {
             <option value="Personal">Personal</option>
             <option value="Meeting">Meeting</option>
             <option value="Shopping">Shopping</option>
-          </Field>
+          </select>
 
-          <ErrorMessage component="span" name="tag" className={css.error} />
         </div>
 
         <div className={css.actions}>
-          <button type="button" className={css.cancelButton} onClick={onClose}>
+          <button type="button" className={css.cancelButton} onClick={handleCancel}>
             Cancel
           </button>
-          <button type="submit" className={css.submitButton} disabled={false}>
+          <button type="submit" className={css.submitButton} disabled={false} >
             Create note
           </button>
         </div>
-      </Form>
-    </Formik>
+      </form>
+    
   );
 }

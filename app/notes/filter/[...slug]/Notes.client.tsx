@@ -12,6 +12,7 @@ import SearchBox from "@/components/SearchBox/SearchBox";
 import NoteForm from "@/components/NoteForm/NoteForm";
 import Modal from "@/components/CreateNoteModal/Modal";
 import Pagination from "@/components/Pagination/Pagination";
+import Link from "next/link";
 
 
 
@@ -20,12 +21,10 @@ type Props = {
   tag: string;
 };
 
-export default function NoteClient({startData, tag }: Props) {
+export default function NotesClient({startData, tag }: Props) {
   // console.log(tag);
-
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [debounceQuery] = useDebounce(query, 1000);
 
   const updateQuery = (query: string) => {
@@ -41,10 +40,7 @@ export default function NoteClient({startData, tag }: Props) {
     placeholderData: keepPreviousData,
   });
 
-  const openModal = () => setIsModalOpen(true);
-
-  const closeModal = () => setIsModalOpen(false);
-
+  
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
@@ -52,15 +48,12 @@ export default function NoteClient({startData, tag }: Props) {
         {data && data.totalPages > 1 && (
           <Pagination page={page} total={data.totalPages} onChange={setPage} />
         )}
-        <button className={css.button} onClick={openModal}>
+        <Link href="/notes/action/create" className={css.button}>
+        <button className={css.button}>
           Create note +
         </button>
+        </Link>
 
-        {isModalOpen && (
-          <Modal onClose={closeModal}>
-            <NoteForm onClose={closeModal} />
-          </Modal>
-        )}
       </header>
       {isLoading && <span>Loading...</span>}
       {isError && <span className={css.error}>Error</span>}
