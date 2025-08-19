@@ -3,12 +3,12 @@ import css from './NotesPage.module.css'
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "Notes App",
-  description: "Useful App for making notes",
+  title: "Create new note",
+  description: "Page for creating new note",
   openGraph: {
-    title: `Your Notes`,
-    description: `Your App for making notes`,
-    url: `https://07-routing-nextjs-lac-mu.vercel.app/`,
+    title: `Create new note`,
+    description: `Page for creating new note`,
+    url: `https://08-zustand-liard.vercel.app/notes/action/create/`,
     images: [
 {
           url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',

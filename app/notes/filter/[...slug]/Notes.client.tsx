@@ -9,19 +9,15 @@ import { useDebounce } from "use-debounce";
 import NoteList from "@/components/NoteList/NoteList";
 import { fetchNotes, NoteResponse } from "@/lib/api";
 import SearchBox from "@/components/SearchBox/SearchBox";
-import NoteForm from "@/components/NoteForm/NoteForm";
-import Modal from "@/components/CreateNoteModal/Modal";
 import Pagination from "@/components/Pagination/Pagination";
 import Link from "next/link";
-
-
 
 type Props = {
   startData: NoteResponse;
   tag: string;
 };
 
-export default function NotesClient({startData, tag }: Props) {
+export default function NotesClient({ startData, tag }: Props) {
   // console.log(tag);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
@@ -40,7 +36,6 @@ export default function NotesClient({startData, tag }: Props) {
     placeholderData: keepPreviousData,
   });
 
-  
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
@@ -49,11 +44,8 @@ export default function NotesClient({startData, tag }: Props) {
           <Pagination page={page} total={data.totalPages} onChange={setPage} />
         )}
         <Link href="/notes/action/create" className={css.button}>
-        <button className={css.button}>
           Create note +
-        </button>
         </Link>
-
       </header>
       {isLoading && <span>Loading...</span>}
       {isError && <span className={css.error}>Error</span>}
